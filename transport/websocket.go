@@ -32,7 +32,9 @@ type WebsocketConnection struct {
 }
 
 func (wsc *WebsocketConnection) GetMessage() (message string, err error) {
-	wsc.socket.SetReadDeadline(time.Now().Add(wsc.transport.ReceiveTimeout))
+	if err := wsc.socket.SetReadDeadline(time.Now().Add(wsc.transport.ReceiveTimeout)); err != nil {
+		return "", err
+	}
 	msgType, reader, err := wsc.socket.NextReader()
 	if err != nil {
 		return "", err
@@ -58,7 +60,9 @@ func (wsc *WebsocketConnection) GetMessage() (message string, err error) {
 }
 
 func (wsc *WebsocketConnection) WriteMessage(message string) error {
-	wsc.socket.SetWriteDeadline(time.Now().Add(wsc.transport.SendTimeout))
+	if err := wsc.socket.SetWriteDeadline(time.Now().Add(wsc.transport.SendTimeout)); err != nil {
+		return err
+	}
 	writer, err := wsc.socket.NextWriter(websocket.TextMessage)
 	if err != nil {
 		return err
